@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +10,7 @@ public class Snake : MonoBehaviour
     private List<Transform> _segments = new List<Transform>();
     public Transform SegmentPerfab;
     public int initialSize = 4;
+    private Vector2 _nextDirection = Vector2.right;
 
     private void Start()
     {
@@ -18,27 +19,30 @@ public class Snake : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W) && _direction != Vector2.down)
         {
-            _direction = Vector2.up;
+            _nextDirection = Vector2.up;
         }
-        else if (Input.GetKeyDown(KeyCode.S))
+        else if (Input.GetKeyDown(KeyCode.S) && _direction != Vector2.up)
         {
-            _direction = Vector2.down;
+            _nextDirection = Vector2.down;
         }
-        else if (Input.GetKeyDown(KeyCode.A))
+        else if (Input.GetKeyDown(KeyCode.A) && _direction != Vector2.right)
         {
-            _direction = Vector2.left;
+            _nextDirection = Vector2.left;
         }
-        else if (Input.GetKeyDown(KeyCode.D))
+        else if (Input.GetKeyDown(KeyCode.D) && _direction != Vector2.left)
         {
-            _direction = Vector2.right;
+            _nextDirection = Vector2.right;
         }
     }
 
     private void FixedUpdate()
     {
-        for (int i = _segments.Count - 1; i > 0; i--) {
+        _direction = _nextDirection; // Burada yönü güncelliyoruz
+
+        for (int i = _segments.Count - 1; i > 0; i--)
+        {
             _segments[i].position = _segments[i - 1].position;
         }
 
@@ -53,6 +57,8 @@ public class Snake : MonoBehaviour
         Transform segment = Instantiate(this.SegmentPerfab);
         segment.position = _segments[_segments.Count - 1].position;
         _segments.Add(segment);
+        GameManager.Instance.AddScore(10);
+
     }
     private void ResetState()
     {
@@ -70,6 +76,9 @@ public class Snake : MonoBehaviour
         }
 
         this.transform.position = Vector3.zero;
+        GameManager.Instance.ResetScore();
+
+
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -79,7 +88,14 @@ public class Snake : MonoBehaviour
         }
         else if (other.tag == "Obstacle")
         {
-            ResetState();
+            
+
+            // Game Over panelini aç
+            FindObjectOfType<GameOverManager>().ShowGameOver();
+
+            // Yılanı durdurmak için kendini devre dışı bırak
+            this.enabled = false;
         }
     }
+
 }
