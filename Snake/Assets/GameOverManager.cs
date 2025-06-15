@@ -11,7 +11,7 @@ public class GameOverManager : MonoBehaviour
     public void ShowGameOver()
     {
         gameOverPanel.SetActive(true);
-        finalScoreText.text = "Skorun: " + GameManager.Instance.score.ToString();
+        finalScoreText.text = "Score: " + GameManager.Instance.score.ToString();
     }
 
     public void RestartGame()
